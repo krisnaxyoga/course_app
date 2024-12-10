@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CourseVidio;
+use App\Models\CourseVideo;
 use Illuminate\Http\Request;
 
 class CourseVidioController extends Controller
@@ -34,7 +34,7 @@ class CourseVidioController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(CourseVidio $courseVidio)
+    public function show(CourseVideo $courseVidio)
     {
         //
     }
@@ -42,7 +42,7 @@ class CourseVidioController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(CourseVidio $courseVidio)
+    public function edit(CourseVideo $courseVidio)
     {
         //
     }
@@ -50,7 +50,7 @@ class CourseVidioController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, CourseVidio $courseVidio)
+    public function update(Request $request, CourseVideo $courseVidio)
     {
         //
     }
@@ -58,7 +58,7 @@ class CourseVidioController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CourseVidio $courseVidio)
+    public function destroy(CourseVideo $courseVidio)
     {
         //
     }
