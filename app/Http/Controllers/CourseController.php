@@ -3,7 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\Teacher;
+use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreCourseRequest;
+use App\Http\Requests\UpdateCourseRequest;
+use App\Models\CourseKeypoint;
 
 class CourseController extends Controller
 {
@@ -12,7 +19,17 @@ class CourseController extends Controller
      */
     public function index()
     {
-        //
+        $user = Auth::user();
+        $query = Course::with(['category', 'teacher', 'students','course_video'])->orderByDesc('id');
+        if ($user->hasRole('teacher')) {
+            $query->whereHas('teacher', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            });
+
+        }
+        $courses = $query->paginate(10);
+
+        return view('admin.courses.index', compact('courses'));
     }
 
     /**
@@ -20,15 +37,46 @@ class CourseController extends Controller
      */
     public function create()
     {
-        //
+        $categories = Category::all();
+        return view('admin.courses.create', compact('categories'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCourseRequest $request)
     {
-        //
+        $teacher = Teacher::where('user_id', Auth::id())->firstOrFail();
+
+        DB::transaction(function () use ($teacher, $request) {
+            $validated = $request->validated();
+
+            if ($request->hasFile('icon')) {
+                $image = $request->file('icon');
+                $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('images'), $filename);
+                $validate['thumbnail'] = "/images/" . $filename;
+            }
+            $validate['slug'] = str()->slug($validated['name']);
+            $validate['teacher_id'] = $teacher->id;
+            $validate['about'] = $validated['about'];
+            $validate['category_id'] = $validated['category_id'];
+            $validate['path_trailer'] = $validated['path_trailer'];
+            $validate['name'] = $validated['name'];
+
+
+            $course = Course::create($validate);
+
+            if (!empty($validated['course_keypoints'])) {
+                foreach ($validated['course_keypoints'] as $keypointText) {
+                    $course->course_keypoints()->create([
+                        'name' => $keypointText
+                    ]);
+                }
+            }
+        });
+
+        return redirect()->route('admin.courses.index');
     }
 
     /**
@@ -36,7 +84,7 @@ class CourseController extends Controller
      */
     public function show(Course $course)
     {
-        //
+        return view('admin.courses.show', compact('course'));
     }
 
     /**
@@ -44,15 +92,44 @@ class CourseController extends Controller
      */
     public function edit(Course $course)
     {
-        //
+        $categories = Category::all();
+        return view('admin.courses.edit', compact('course','categories'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Course $course)
+    public function update(UpdateCourseRequest $request, Course $course)
     {
-        //
+        DB::transaction(function () use ($course, $request) {
+            $validated = $request->validated();
+
+            if ($request->hasFile('thumbnail')) {
+                $image = $request->file('thumbnail');
+                $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('images'), $filename);
+                $validate['thumbnail'] = "/images/" . $filename;
+            }
+            $validate['slug'] = str()->slug($validated['name']);
+            $validate['about'] = $validated['about'];
+            $validate['category_id'] = $validated['category_id'];
+            $validate['path_trailer'] = $validated['path_trailer'];
+            $validate['name'] = $validated['name'];
+
+
+            $course->update($validate);
+
+            if (!empty($validated['course_keypoints'])) {
+                $course->course_keypoints()->delete();
+                foreach ($validated['course_keypoints'] as $keypointText) {
+                    $course->course_keypoints()->create([
+                        'name' => $keypointText
+                    ]);
+                }
+            }
+        });
+
+        return redirect()->route('admin.courses.show', $course);
     }
 
     /**
@@ -60,6 +137,11 @@ class CourseController extends Controller
      */
     public function destroy(Course $course)
     {
-        //
+        DB::transaction(function () use ($course) {
+            $course->course_keypoints()->delete();
+            $course->delete();
+        });
+
+        return redirect()->route('admin.courses.index');
     }
 }

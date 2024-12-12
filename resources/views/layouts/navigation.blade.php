@@ -15,18 +15,22 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.index')">
-                        {{ __('Menage Categories') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('admin.courses.index')" :active="request()->routeIs('admin.courses.index')">
-                        {{ __('Menage courses') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('admin.teachers.index')" :active="request()->routeIs('admin.teachers.index')">
-                        {{ __('Menage teachers') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('admin.subscriptions_transaction.index')" :active="request()->routeIs('admin.subscriptions_transaction.index')">
-                        {{ __('Menage Subscribetions') }}
-                    </x-nav-link>
+                    @role('owner|teacher')
+                        <x-nav-link :href="route('admin.courses.index')" :active="request()->routeIs('admin.courses.index')">
+                            {{ __('Menage courses') }}
+                        </x-nav-link>
+                    @endrole
+                    @role('owner')
+                        <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.index')">
+                            {{ __('Menage Categories') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.teachers.index')" :active="request()->routeIs('admin.teachers.index')">
+                            {{ __('Menage teachers') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.subscriptions_transaction.index')" :active="request()->routeIs('admin.subscriptions_transaction.index')">
+                            {{ __('Menage Subscribetions') }}
+                        </x-nav-link>
+                    @endrole
                 </div>
             </div>
 

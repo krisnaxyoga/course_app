@@ -11,6 +11,8 @@ class CourseVideo extends Model
 
    protected $guarded = [];
 
+//    protected $table = 'course_videos';
+
    public function course()
    {
        return $this->belongsTo(Course::class);

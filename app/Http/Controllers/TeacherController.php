@@ -7,6 +7,7 @@ use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreTeacherRequest;
+use Illuminate\Validation\ValidationException;
 
 class TeacherController extends Controller
 {
@@ -32,9 +33,9 @@ class TeacherController extends Controller
      */
     public function store(StoreTeacherRequest $request)
     {
-        $validate = $request->validated();
+        $validated = $request->validated();
 
-        $user = User::where('email', $validate['email'])->first();
+        $user = User::where('email', $validated['email'])->first();
         if (!$user) {
             return redirect()->back()->with('email', 'Data is not found');
         }
@@ -43,11 +44,11 @@ class TeacherController extends Controller
             return redirect()->back()->with('email', 'Email already exists');
         }
 
-        DB::transaction(function () use($validate, $user) {
-            $validate['user_id'] = $user->id;
-            $validate['is_active'] = true;
+        DB::transaction(function () use ($user) {
+            $validated['user_id'] = $user->id;
+            $validated['is_active'] = true;
 
-            Teacher::create($validate);
+            Teacher::create($validated);
 
             if($user->hasRole('student')) {
                 $user->removeRole('student');
@@ -86,8 +87,20 @@ class TeacherController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Teacher $teacher)
     {
-        //
+        try {
+            $teacher->delete();
+            $user = User::find($teacher->user_id);
+            $user->removeRole('teacher');
+            $user->assignRole('student');
+            return redirect()->back();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $error = ValidationException::withMessages([
+                'error' => ['system error',$e->getMessage()]
+            ]);
+            throw $error;
+        }
     }
 }

@@ -30,7 +30,7 @@ class Course extends Model
         return $this->hasMany(CourseVideo::class);
     }
 
-    public function course_keypoint()
+    public function course_keypoints()
     {
         return $this->hasMany(CourseKeypoint::class);
     }
