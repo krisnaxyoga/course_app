@@ -56,8 +56,12 @@ class User extends Authenticatable
     }
 
     public function hasActiveSubscription(){
-        $latestSubscription = $this->subscribe_transaction()->where('is_paid', true)->latest('updated_at')->first();
-        if($latestSubscription){
+        $latestSubscription = $this->subscribe_transaction()
+        ->where('is_paid', true)
+        ->latest('updated_at')
+        ->first();
+
+        if(!$latestSubscription){
             return false;
         }
 

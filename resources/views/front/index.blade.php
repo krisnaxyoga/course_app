@@ -33,7 +33,7 @@
                 </li>
             </ul>
             <div class="flex gap-[10px] items-center">
-                <a href=""
+                <a href="{{ route('register') }}"
                     class="text-white font-semibold rounded-[30px] p-[16px_32px] ring-1 ring-white transition-all duration-300 hover:ring-2 hover:ring-[#FF6129]">Sign
                     Up</a>
                 <a href="{{ route('login') }}"
@@ -139,12 +139,12 @@
                     <div class="course-card w-1/3 px-3 pb-[70px] mt-[2px]">
                         <div
                             class="flex flex-col rounded-t-[12px] rounded-b-[24px] gap-[32px] bg-white w-full pb-[10px] overflow-hidden transition-all duration-300 hover:ring-2 hover:ring-[#FF6129]">
-                            <a href="details.html"
+                            <a href="{{ route('front.details', $course->slug) }}"
                                 class="thumbnail w-full h-[200px] shrink-0 rounded-[10px] overflow-hidden">
                                 <img src="{{ $course->thumbnail }}" class="w-full h-full object-cover" alt="thumbnail">
                             </a>
                             <div class="flex flex-col px-4 gap-[10px]">
-                                <a href="details.html"
+                                <a href="{{ route('front.details', $course->slug) }}"
                                     class="font-semibold text-lg line-clamp-2 hover:line-clamp-none min-h-[56px]">{{ $course->name }}</a>
                                 <div class="flex justify-between items-center">
                                     <div class="flex items-center gap-[2px]">
